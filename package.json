@@ -1,0 +1,40 @@
+{
+  "name": "@asaayers/ts-datapack",
+  "version": "1.0.0",
+  "description": "Generates Minecraft DataPacks from TypeScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AsaAyers/ts-datapack.git"
+  },
+  "keywords": [
+    "minecraft",
+    "datapack"
+  ],
+  "author": "Asa Ayers <Asa@AsaAyers.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AsaAyers/ts-datapack/issues"
+  },
+  "homepage": "https://github.com/AsaAyers/ts-datapack#readme",
+  "devDependencies": {
+    "@types/node": "^13.11.0",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^2.0.4",
+    "ts-node": "^8.8.2",
+    "typescript": "^3.8.3"
+  }
+}
