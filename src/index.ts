@@ -5,6 +5,7 @@ import { objectives, queue } from "./queue";
 import DataPack from "./datapack";
 export { McFunction } from "./types";
 export * from "./game-types";
+export * from "./commands";
 
 export default DataPack;
 

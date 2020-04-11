@@ -3,7 +3,10 @@ import { McFunction } from "./types";
 export type SelectorArgs = {
   [arg: string]: any;
 };
-export type Selector = (args: SelectorArgs) => Selector;
+
+export type SelectorFunction = (args: SelectorArgs) => Selector;
+
+export type Selector = string | SelectorFunction;
 
 export type TextNode =
   | string

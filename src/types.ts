@@ -1,11 +1,12 @@
 import { LootEntry } from "./game-types";
+import { ExecuteCommand } from "./commands";
 
 export interface DataPackFile {
   toString: () => string;
   filename: string;
   content: () => string;
 }
-export type CodeGenerator = () => Generator<string>;
+export type CodeGenerator = () => Generator<string | ExecuteCommand>;
 
 export type McFunction = CodeGenerator & {
   type: "mcfunction";
