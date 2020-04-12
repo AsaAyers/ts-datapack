@@ -7,7 +7,8 @@ export interface DataPackFile {
   content: () => string;
 }
 
-export type CodeGenReturn = Generator<string | ExecuteCommand | McFunction>;
+export type Command = { type: "command"; toString(): string } | ExecuteCommand;
+export type CodeGenReturn = Generator<Command | ExecuteCommand | McFunction>;
 export type CodeGenerator = () => CodeGenReturn;
 
 export type McFunction = CodeGenerator & {

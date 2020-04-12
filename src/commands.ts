@@ -1,8 +1,13 @@
 import { Selector } from "./game-types";
-import { Objective, McFunction, CodeGenerator, CodeGenReturn } from "./types";
+import { Objective, McFunction, CodeGenerator, Command } from "./types";
 
-export function command(...args: string[]): string {
-  return args.join(" ");
+export function command(...args: string[]): Command {
+  return {
+    type: "command",
+    toString(): string {
+      return args.join(" ").trim();
+    },
+  };
 }
 
 type NBTData = Record<string, any>;
@@ -49,15 +54,15 @@ export class ExecuteCommand {
 
   // I had to add CodeGenerator for functions that reference themselves. By
   // runtime `mcFunction` will have transformed it to an McFunction
-  run(command: Command | McFunction | CodeGenerator): ExecuteCommand {
+  run(cmd: Command | McFunction | CodeGenerator): ExecuteCommand {
     // If you just pass an McFunciton directly, this assumes you want to run it
     // with the `function` command. since funciton is a keyword in JS, I can't
     // make a function(fn: McFunction): string
-    if (typeof command === "function") {
-      return this.run(`function ${command}`);
+    if (typeof cmd === "function") {
+      return this.run(command(`function ${cmd}`));
     }
 
-    this.command = `${this.command} run ${command}`;
+    this.command = `${this.command} run ${cmd}`;
     return this;
   }
 }
@@ -82,14 +87,14 @@ export function scoreboard(
   X: "enable",
   targets: Selector,
   objective: Objective
-): string;
+): Command;
 export function scoreboard(
   type: "players",
   X: "add" | "set",
   targets: Selector,
   objective: Objective,
   score: number
-): string;
+): Command;
 export function scoreboard(
   type: "players",
   X: "operation",
@@ -98,20 +103,18 @@ export function scoreboard(
   operation: "+=" | "-=" | "*=" | "/=" | "%=" | "=" | "<" | ">" | "><",
   source: Selector,
   sourceObjective: Objective
-): string;
+): Command;
 
-export function scoreboard(...args: unknown[]): string {
-  return `scoreboard ${args.join(" ")}`;
+export function scoreboard(...args: unknown[]): Command {
+  return command(`scoreboard ${args.join(" ")}`);
 }
 
-export function say(text: string): string {
-  return `say "${text}"`;
+export function say(text: string): Command {
+  return command(`say "${text}"`);
 }
 
-type Command = string | ExecuteCommand;
-
-export function tellraw(selector: Selector, data: NBTData): string {
-  return `tellraw ${selector} ${nbt(data)}`;
+export function tellraw(selector: Selector, data: NBTData): Command {
+  return command(`tellraw ${selector} ${nbt(data)}`);
 }
 
 // effect give <entity> <effect> [<seconds>] [<amplifier>] [<hideParticles>]
@@ -122,7 +125,7 @@ type Effect =
   | "minecraft:regeneration"
   | "minecraft:resistance";
 
-export function effect(op: "clear", entity: Selector, effect?: Effect): string;
+export function effect(op: "clear", entity: Selector, effect?: Effect): Command;
 export function effect(
   op: "give",
   entity: Selector,
@@ -130,42 +133,94 @@ export function effect(
   seconds?: number,
   amplifier?: number,
   hideParticles?: boolean
-): string;
-export function effect(...args: unknown[]): string {
-  return `effect ${args.join(" ")}`;
+): Command;
+export function effect(...args: unknown[]): Command {
+  return command(`effect ${args.join(" ")}`);
 }
 
 export function schedule(
   fn: McFunction | CodeGenerator,
   time: number | string,
   append?: boolean
-): string;
+): Command;
 export function schedule(
   clear: "clear",
   fn: McFunction | CodeGenerator
-): string;
-export function schedule(...args: unknown[]): string {
+): Command;
+export function schedule(...args: unknown[]): Command {
   if (args[0] === "clear") {
-    return `schedule clear ${args[1]}`;
+    return command(`schedule clear ${args[1]}`);
   } else {
     const [fn, time, append = false] = args;
 
-    return `schedule function ${fn} ${time} ${append ? "append" : "replace"}`;
+    return command(
+      `schedule function ${fn} ${time} ${append ? "append" : "replace"}`
+    );
   }
 }
 
-export function team(op: "add", team: string, displayName?: string): string;
-export function team(op: "empty", team: string): string;
-export function team(op: "join", team: string, members: Selector): string;
-export function team(op: "leave", members: Selector): string;
-export function team(op: "list", team: string): string;
+export function team(op: "add", team: string, displayName?: string): Command;
+export function team(op: "empty", team: string): Command;
+export function team(op: "join", team: string, members: Selector): Command;
+export function team(op: "leave", members: Selector): Command;
+export function team(op: "list", team: string): Command;
 export function team(
   op: "modify",
   team: string,
   option: string,
   value: string
-): string;
-export function team(op: "remove", team: string): string;
-export function team(...args: unknown[]): string {
-  return `team ${args.join(" ")}`;
+): Command;
+export function team(op: "remove", team: string): Command;
+export function team(...args: unknown[]): Command {
+  return command(`team ${args.join(" ")}`);
+}
+
+/*
+    title <player> clear (removes the screen title from the screen)
+    title <player> reset (resets options to default values)
+    title <player> title <raw json title> (displays the text as the title position)
+    title <player> subtitle <raw json title> (displays the text in the subtitle position)
+    title <player> actionbar <raw json title> (displays the text as the action bar position)
+    title <player> times <fadeIn> <stay> <fadeOut> (specifies fade-in, stay, and fade-out times)
+    */
+export function title(player: Selector, op: "clear"): Command;
+export function title(player: Selector, op: "reset"): Command;
+export function title(player: Selector, op: "title", rawJson: NBTData): Command;
+export function title(
+  player: Selector,
+  op: "subtitle",
+  rawJson: NBTData
+): Command;
+export function title(
+  player: Selector,
+  op: "actionbar",
+  rawJson: NBTData
+): Command;
+export function title(
+  player: Selector,
+  op: "times",
+  fadeIn: number,
+  stay: number,
+  fadeOut: number
+): Command;
+export function title(
+  player: Selector,
+  op: unknown,
+  ...args: unknown[]
+): Command {
+  switch (op) {
+    case "title":
+    case "subtitle":
+      const data = args[0] as NBTData;
+
+      return command(`title ${player} ${op} ${nbt(data)}`);
+    default:
+      return command(`title ${player} ${op} ${args.join(" ")}`);
+  }
+}
+
+// TODO: Check the game rule names
+export function gamerule(name: string, value: number | boolean): Command;
+export function gamerule(...args: unknown[]): Command {
+  return command(`gamerule ${args.join(" ")}`);
 }
