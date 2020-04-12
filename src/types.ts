@@ -6,7 +6,9 @@ export interface DataPackFile {
   filename: string;
   content: () => string;
 }
-export type CodeGenerator = () => Generator<string | ExecuteCommand>;
+
+export type CodeGenReturn = Generator<string | ExecuteCommand | McFunction>;
+export type CodeGenerator = () => CodeGenReturn;
 
 export type McFunction = CodeGenerator & {
   type: "mcfunction";
@@ -36,8 +38,9 @@ export type ScoreboardInput = {
   [variableName: string]: string; // type
 };
 
+export type Objective = {
+  toString: () => string;
+};
 export type Scoreboard<T> = {
-  [variableName in keyof T]: {
-    toString: () => string;
-  };
+  [variableName in keyof T]: Objective;
 };

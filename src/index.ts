@@ -64,7 +64,7 @@ export async function build(_targetDirectory: string): Promise<void> {
       const fullPath = path.join(_targetDirectory, file.filename);
       const dir = path.dirname(fullPath);
       await mkdir(dir, { recursive: true });
-      console.log("writing", file.filename);
+      // console.log("writing", file.filename);
       writeFile(fullPath, file.content);
     })
   );
