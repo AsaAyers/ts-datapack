@@ -1,4 +1,4 @@
-import { Selector } from "./game-types";
+import { Selector, Location } from "./game-types";
 import { Objective, McFunction, CodeGenerator, Command } from "./types";
 
 export function command(...args: string[]): Command {
@@ -223,4 +223,29 @@ export function title(
 export function gamerule(name: string, value: number | boolean): Command;
 export function gamerule(...args: unknown[]): Command {
   return command(`gamerule ${args.join(" ")}`);
+}
+
+export function teleport(destination: Selector): Command;
+export function teleport(targets: Selector, destination: Selector): Command;
+export function teleport(targets: Selector, entity: Selector): Command;
+export function teleport(
+  targets: Selector,
+  location: Selector,
+  f: "facing",
+  facingLocation: Location
+): Command;
+export function teleport(
+  targets: Selector,
+  location: Selector,
+  f: "facing entity",
+  facingEntity: Selector,
+  facingAnchor?: string
+): Command;
+export function teleport(
+  targets: Selector,
+  location: Selector,
+  rotation?: number
+): Command;
+export function teleport(...args: unknown[]): Command {
+  return command(`teleport ${args.join(" ")}`);
 }

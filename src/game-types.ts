@@ -8,6 +8,8 @@ export type SelectorFunction = (args: SelectorArgs) => Selector;
 
 export type Selector = string | SelectorFunction;
 
+export type Location = string;
+
 export type TextNode =
   | string
   | {
