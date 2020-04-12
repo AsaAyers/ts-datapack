@@ -3,6 +3,7 @@ import * as path from "path";
 import { promisify } from "util";
 import { objectives, queue } from "./queue";
 import DataPack from "./datapack";
+import { command } from "./commands";
 export { McFunction } from "./types";
 export * from "./game-types";
 export * from "./commands";
@@ -20,9 +21,9 @@ export const mcLoad = minecraft.makeTag("functions", "load");
 const tsPack = new DataPack("ts_pack");
 mcLoad(
   tsPack.mcFunction(function* load() {
-    yield `# ts-datapack`;
+    yield command(`# ts-datapack`);
     if (objectives.length > 0) {
-      yield objectives.join("\n");
+      yield command(objectives.join("\n"));
     }
   })
 );
