@@ -15,6 +15,10 @@ export type McFunction = CodeGenerator & {
   type: "mcfunction";
 } & DataPackFile;
 
+export type LootTable = DataPackFile & {
+  type: "loot_table";
+};
+
 export type Tag = ((...values: Array<McFunction | string>) => void) & {
   type: "tag";
   values: Array<McFunction | string>;

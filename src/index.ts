@@ -7,6 +7,7 @@ import { command } from "./commands";
 export { McFunction } from "./types";
 export * from "./game-types";
 export * from "./commands";
+export * from "./commands/loot";
 
 export default DataPack;
 

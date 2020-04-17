@@ -9,6 +9,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "start": "tsc --watch",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

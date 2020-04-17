@@ -9,6 +9,7 @@ import {
   DataPackFile,
   TagType,
   Tag,
+  LootTable,
 } from "./types";
 import { SelectorArgs, Selector, SelectorFunction } from "./game-types";
 import { command } from "./commands";
@@ -81,7 +82,7 @@ export default class DataPack {
     return mcFn;
   }
 
-  public makeLootTable(name: string, table: LootInput): DataPackFile {
+  public makeLootTable(name: string, table: LootInput): LootTable {
     const filename = path.join(
       "data",
       this.namespace,
@@ -89,7 +90,8 @@ export default class DataPack {
       `${name}.json`
     );
 
-    const lootTable = {
+    const lootTable: LootTable = {
+      type: "loot_table",
       filename,
       toString: (): string => {
         const fullName = `${this.namespace}:${name}`;

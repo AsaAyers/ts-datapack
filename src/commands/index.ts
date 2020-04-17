@@ -1,5 +1,7 @@
-import { Selector, Location } from "./game-types";
-import { Objective, McFunction, CodeGenerator, Command } from "./types";
+/* eslint-disable @typescript-eslint/camelcase */
+export * from "./loot";
+import { Selector, Location } from "../game-types";
+import { Objective, McFunction, CodeGenerator, Command } from "../types";
 
 export function command(...args: string[]): Command {
   return {
@@ -10,7 +12,7 @@ export function command(...args: string[]): Command {
   };
 }
 
-type NBTData = Record<string, any>;
+export type NBTData = Record<string, any>;
 export function nbt(data: NBTData): string {
   return JSON.stringify(data);
 }
@@ -248,4 +250,102 @@ export function teleport(
 ): Command;
 export function teleport(...args: unknown[]): Command {
   return command(`teleport ${args.join(" ")}`);
+}
+
+export enum Particle {
+  ambient_entity_effect = "minecraft:ambient_entity_effect",
+  angry_villager = "minecraft:angry_villager",
+  barrier = "minecraft:barrier",
+  block = "minecraft:block",
+  bubble = "minecraft:bubble",
+  bubble_column_up = "minecraft:bubble_column_up",
+  bubble_pop = "minecraft:bubble_pop",
+  campfire_cosy_smoke = "minecraft:campfire_cosy_smoke",
+  campfire_signal_smoke = "minecraft:campfire_signal_smoke",
+  cloud = "minecraft:cloud",
+  composter = "minecraft:composter",
+  crit = "minecraft:crit",
+  current_down = "minecraft:current_down",
+  damage_indicator = "minecraft:damage_indicator",
+  dolphin = "minecraft:dolphin",
+  dragon_breath = "minecraft:dragon_breath",
+  dripping_honey = "minecraft:dripping_honey",
+  dripping_lava = "minecraft:dripping_lava",
+  dripping_water = "minecraft:dripping_water",
+  dust = "minecraft:dust",
+  effect = "minecraft:effect",
+  elder_guardian = "minecraft:elder_guardian",
+  enchant = "minecraft:enchant",
+  enchanted_hit = "minecraft:enchanted_hit",
+  end_rod = "minecraft:end_rod",
+  entity_effect = "minecraft:entity_effect",
+  explosion = "minecraft:explosion",
+  explosion_emitter = "minecraft:explosion_emitter",
+  falling_dust = "minecraft:falling_dust",
+  falling_honey = "minecraft:falling_honey",
+  falling_lava = "minecraft:falling_lava",
+  falling_nectar = "minecraft:falling_nectar",
+  falling_water = "minecraft:falling_water",
+  firework = "minecraft:firework",
+  fishing = "minecraft:fishing",
+  flame = "minecraft:flame",
+  flash = "minecraft:flash",
+  happy_villager = "minecraft:happy_villager",
+  heart = "minecraft:heart",
+  instant_effect = "minecraft:instant_effect",
+  item = "minecraft:item",
+  item_slime = "minecraft:item_slime",
+  item_snowball = "minecraft:item_snowball",
+  landing_honey = "minecraft:landing_honey",
+  landing_lava = "minecraft:landing_lava",
+  large_smoke = "minecraft:large_smoke",
+  lava = "minecraft:lava",
+  mycelium = "minecraft:mycelium",
+  nautilus = "minecraft:nautilus",
+  note = "minecraft:note",
+  poof = "minecraft:poof",
+  portal = "minecraft:portal",
+  rain = "minecraft:rain",
+  smoke = "minecraft:smoke",
+  sneeze = "minecraft:sneeze",
+  soul = "minecraft:soul",
+  spit = "minecraft:spit",
+  splash = "minecraft:splash",
+  squid_ink = "minecraft:squid_ink",
+  sweep_attack = "minecraft:sweep_attack",
+  totem_of_undying = "minecraft:totem_of_undying",
+  underwater = "minecraft:underwater",
+  witch = "minecraft:witch",
+}
+
+export type Position = string;
+// minecraft:dust 1.0 1.0 1.0 1.0 ~ ~ ~ 0 0 0 0 1
+export function particle(
+  name: Particle.dust,
+  color: string,
+  pos: Position,
+  delta: string,
+  speed: number,
+  count: number,
+  mode?: "normal" | "force",
+  viewers?: Selector
+): Command;
+export function particle(
+  name: Particle,
+  pos: Position,
+  delta: string,
+  speed: number,
+  count: number,
+  mode?: "normal" | "force",
+  viewers?: Selector
+): Command;
+export function particle(
+  name: Particle,
+  speed: number,
+  count: number,
+  mode?: "normal" | "force",
+  viewers?: Selector
+): Command;
+export function particle(...args: unknown[]): Command {
+  return command(`particle ${args.join(" ")}`);
 }
