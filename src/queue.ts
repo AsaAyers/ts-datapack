@@ -1,5 +1,5 @@
-import { DataPackFile } from "./types";
+import { DataPackFile, FileType } from "./types";
 
-export const queue: DataPackFile[] = [];
+export const queue: DataPackFile<FileType>[] = [];
 
 export const objectives: string[] = [];

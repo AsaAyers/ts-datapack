@@ -10,6 +10,7 @@ import {
   TagType,
   Tag,
   LootTable,
+  FileType,
 } from "./types";
 import { SelectorArgs, Selector, SelectorFunction } from "./game-types";
 import { command } from "./commands";
@@ -53,7 +54,7 @@ export default class DataPack {
     );
 
     const mcFn: McFunction = Object.assign(fn, {
-      type: "mcfunction" as const,
+      type: FileType.McFunction,
       filename,
       toString: (): string => {
         if (!queue.includes(mcFn)) {
@@ -78,7 +79,7 @@ export default class DataPack {
           .map((s) => s.trim())
           .join("\n");
       },
-    });
+    } as const);
     return mcFn;
   }
 
@@ -91,7 +92,7 @@ export default class DataPack {
     );
 
     const lootTable: LootTable = {
-      type: "loot_table",
+      type: FileType.LootTable,
       filename,
       toString: (): string => {
         const fullName = `${this.namespace}:${name}`;
@@ -105,7 +106,7 @@ export default class DataPack {
     return lootTable;
   }
 
-  public makeTag(type: TagType, name: string): Tag {
+  public makeTag<T extends TagType>(type: T, name: string): Tag<T> {
     const filename = path.join(
       "data",
       this.namespace,
@@ -114,33 +115,35 @@ export default class DataPack {
       name + ".json"
     );
 
-    const values: Array<McFunction | string> = [];
-    const tag: Tag = Object.assign(
+    const values: Tag<T>["values"] = [];
+    const tagFile: DataPackFile<FileType.Tag> = {
+      type: FileType.Tag,
+      filename,
+      toString: (): string => {
+        if (!queue.includes(tagFile)) {
+          queue.push(tagFile);
+        }
+        return `#${this.namespace}:${name}`;
+      },
+      content(): string {
+        if (values.length === 0) {
+          return "";
+        }
+
+        const data = {
+          values: values.map(String),
+        };
+
+        return JSON.stringify(data, null, 2);
+      },
+    };
+
+    const tag: Tag<T> = Object.assign(
       (...newValues: typeof values): void => {
         values.push(...newValues);
       },
-      {
-        type: "tag" as const,
-        values,
-        filename,
-        toString: (): string => {
-          if (!queue.includes(tag)) {
-            queue.push(tag);
-          }
-          return `#${this.namespace}:${name}`;
-        },
-        content(): string {
-          if (values.length === 0) {
-            return "";
-          }
-
-          const data = {
-            values: values.map(String),
-          };
-
-          return JSON.stringify(data, null, 2);
-        },
-      }
+      tagFile,
+      { values }
     );
     return tag;
   }

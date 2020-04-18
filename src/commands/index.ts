@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 export * from "./loot";
 import { Selector, Location } from "../game-types";
-import { Objective, McFunction, CodeGenerator, Command } from "../types";
+import { Objective, McFunction, CodeGenerator, Command, Tag } from "../types";
 
 export function command(...args: string[]): Command {
   return {
@@ -19,12 +19,6 @@ export function nbt(data: NBTData): string {
 
 export class ExecuteCommand {
   command = "execute";
-
-  public type = "execute";
-
-  toString(): string {
-    return this.command;
-  }
 
   as(selector: Selector): ExecuteCommand {
     this.command = `${this.command} as ${selector}`;
@@ -56,7 +50,7 @@ export class ExecuteCommand {
 
   // I had to add CodeGenerator for functions that reference themselves. By
   // runtime `mcFunction` will have transformed it to an McFunction
-  run(cmd: Command | McFunction | CodeGenerator): ExecuteCommand {
+  run(cmd: Command | McFunction | CodeGenerator | Tag<"functions">): Command {
     // If you just pass an McFunciton directly, this assumes you want to run it
     // with the `function` command. since funciton is a keyword in JS, I can't
     // make a function(fn: McFunction): string
@@ -65,7 +59,13 @@ export class ExecuteCommand {
     }
 
     this.command = `${this.command} run ${cmd}`;
-    return this;
+
+    return {
+      type: "command",
+      toString: (): string => {
+        return this.command;
+      },
+    };
   }
 }
 
