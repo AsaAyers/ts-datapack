@@ -84,30 +84,33 @@ export const execute = (): ExecuteCommand => new ExecuteCommand();
         ... set <targets> <objective> <score>
 */
 
-export function scoreboard(
-  type: "players",
-  X: "enable",
-  targets: Selector,
-  objective: Objective
-): Command;
-export function scoreboard(
-  type: "players",
-  X: "add" | "set",
-  targets: Selector,
-  objective: Objective,
-  score: number
-): Command;
-export function scoreboard(
-  type: "players",
-  X: "operation",
-  targets: Selector,
-  targetObjective: Objective,
-  operation: "+=" | "-=" | "*=" | "/=" | "%=" | "=" | "<" | ">" | "><",
-  source: Selector,
-  sourceObjective: Objective
-): Command;
+// https://github.com/Microsoft/TypeScript/issues/28172
+type ScoreboardParams =
+  | ["players", "enable", Selector, Objective]
+  | ["players", "add" | "set", Selector, Objective, number]
+  | [
+      "players",
+      "operation",
+      Selector,
+      Objective,
+      "+=" | "-=" | "*=" | "/=" | "%=" | "=" | "<" | ">" | "><",
+      Selector,
+      Objective
+    ]
+  | ["objectives", "remove", Objective]
+  | ["objectives", "setdisplay", string, Objective | undefined]
+  | ["objectives", "add", Objective];
 
-export function scoreboard(...args: unknown[]): Command {
+export function scoreboard(...args: ScoreboardParams): Command {
+  if (args[0] === "objectives" && args[1] == "add") {
+    const objective = args[2];
+    return command(
+      `scoreboard objectives add ${objective.name} ${objective.criteria} ${
+        objective.displayName || ""
+      }}`
+    );
+  }
+
   return command(`scoreboard ${args.join(" ")}`);
 }
 

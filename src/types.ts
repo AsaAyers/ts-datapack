@@ -51,12 +51,27 @@ export type LootInput = () => {
   }>;
 };
 
-export type ScoreboardInput = {
-  [variableName: string]: string; // type
-};
+type Criteria =
+  | "dummy"
+  | "trigger"
+  | "deathCount"
+  | "playerKillCount"
+  | "totalKillCount"
+  | "health"
+  | "xp"
+  | "level"
+  | "food"
+  | "air"
+  | "armor ";
 
 export type Objective = {
   toString: () => string;
+  criteria: Criteria;
+  name: string;
+  displayName?: string;
+};
+export type ScoreboardInput = {
+  [variableName: string]: Criteria; // type
 };
 export type Scoreboard<T> = {
   [variableName in keyof T]: Objective;

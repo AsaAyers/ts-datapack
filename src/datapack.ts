@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as path from "path";
-import { objectives, queue } from "./queue";
+import { queue, objectives } from "./queue";
 import {
   ScoreboardInput,
   Scoreboard,
@@ -11,12 +12,31 @@ import {
   Tag,
   LootTable,
   FileType,
+  Objective,
+  Command,
 } from "./types";
 import { SelectorArgs, Selector, SelectorFunction } from "./game-types";
-import { command } from "./commands";
+import { command, scoreboard } from "./commands";
+import { mcLoad } from ".";
 
 export default class DataPack {
-  constructor(private namespace: string) {}
+  private initScoreboards: Command[];
+
+  constructor(private namespace: string, private scoreboardNamespace: string) {
+    const initScoreboards: Command[] = [];
+    // TODO: use this to initialize scoreboards. I can't call mcLoad from
+    // DataPack's constructor, because it's a function on DataPack.
+    this.initScoreboards = initScoreboards;
+
+    // const initialize_scoreboards = this.mcFunction(
+    //   function* initialize_scoreboards() {
+    //     for (let index = 0; index < initScoreboards.length; index++) {
+    //       yield initScoreboards[index];
+    //     }
+    //   }
+    // );
+    // mcLoad(initialize_scoreboards);
+  }
 
   public makeScoreboard<T extends ScoreboardInput>(
     namespace: string,
@@ -25,19 +45,33 @@ export default class DataPack {
     const scoreboard = {} as Scoreboard<T>;
     for (const name in variables) {
       if (variables.hasOwnProperty(name)) {
-        const type = variables[name];
+        const criteria = variables[name];
 
-        scoreboard[name] = {
-          toString: (): string => {
-            return `${namespace}.${name}`;
-          },
-        };
-        objectives.push(
-          `scoreboard objectives add ${scoreboard[name]} ${type}\n`
-        );
+        scoreboard[name] = this.objective(name, criteria);
       }
     }
     return scoreboard;
+  }
+
+  public objective(name: string, criteria: Objective["criteria"]): Objective {
+    objectives.push(
+      `scoreboard objectives add ${this.scoreboardNamespace}.${name} ${criteria}\n`
+    );
+    let fullName: string;
+    const myObjective = {
+      criteria,
+      name,
+      toString: (): string => {
+        if (!fullName) {
+          fullName = `${this.scoreboardNamespace}.${name}`;
+          this.initScoreboards.push(
+            scoreboard("objectives", "add", myObjective)
+          );
+        }
+        return fullName;
+      },
+    };
+    return myObjective;
   }
 
   public mcFunction(fn: CodeGenerator, name: string = fn.name): McFunction {
@@ -147,31 +181,31 @@ export default class DataPack {
     );
     return tag;
   }
+}
 
-  public createSelector(
-    name: string,
-    args: SelectorArgs = {}
-  ): SelectorFunction {
-    const selector = (newArgs: SelectorArgs): Selector => {
-      return this.createSelector(name, {
-        ...args,
-        ...newArgs,
-      });
-    };
-    selector.toString = (): string => {
-      const tmp = Object.keys(args).flatMap((arg) => {
-        if (args[arg] != null) {
-          return [`${arg}=${args[arg]}`];
-        }
-        return [];
-      });
-      if (tmp.length > 0) {
-        return `${name}[${tmp.join(",")}]`;
+export function selector(
+  name: string,
+  args: SelectorArgs = {}
+): SelectorFunction {
+  const sel = (newArgs: SelectorArgs): Selector => {
+    return selector(name, {
+      ...args,
+      ...newArgs,
+    });
+  };
+  sel.toString = (): string => {
+    const tmp = Object.keys(args).flatMap((arg) => {
+      if (args[arg] != null) {
+        return [`${arg}=${args[arg]}`];
       }
-      return name;
-    };
-    selector.toJSON = selector.toString;
+      return [];
+    });
+    if (tmp.length > 0) {
+      return `${name}[${tmp.join(",")}]`;
+    }
+    return name;
+  };
+  sel.toJSON = sel.toString;
 
-    return selector;
-  }
+  return sel;
 }

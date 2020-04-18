@@ -14,12 +14,12 @@ export default DataPack;
 const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
 
-const minecraft = new DataPack("minecraft");
+const minecraft = new DataPack("minecraft", "minecraft");
 
 export const mcTick = minecraft.makeTag("functions", "tick");
 export const mcLoad = minecraft.makeTag("functions", "load");
 
-const tsPack = new DataPack("ts_pack");
+const tsPack = new DataPack("ts_pack", "tsp");
 mcLoad(
   tsPack.mcFunction(function* load() {
     yield command(`# ts-datapack`);

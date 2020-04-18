@@ -4,7 +4,11 @@ export type SelectorArgs = {
   [arg: string]: any;
 };
 
-export type SelectorFunction = (args: SelectorArgs) => Selector;
+export type SelectorFunction = (
+  args: SelectorArgs
+) => Selector & {
+  toString(): string;
+};
 
 export type Selector = string | SelectorFunction;
 
