@@ -34,7 +34,7 @@ type McFile = {
   content: string;
 };
 type Files = Record<McFile["filename"], McFile>;
-function buildPlan(): Files {
+export function buildPlan(): Files {
   if (objectives.length > 0) {
   }
   String(mcTick);
