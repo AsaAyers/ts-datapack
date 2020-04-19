@@ -1,9 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
-import { objectives, queue } from "./queue";
+import { queue } from "./queue";
 import DataPack from "./datapack";
-import { command } from "./commands";
 import { DataPackFile, FileType } from "./types";
 export { McFunction } from "./types";
 export * from "./game-types";
@@ -14,22 +13,6 @@ export default DataPack;
 
 const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
-
-const tsPack = new DataPack("ts_pack", "tsp");
-
-const load = tsPack.mcFunction(function* load() {
-  yield command(`# ts-datapack`);
-  if (objectives.length > 0) {
-    yield command(objectives.join("\n"));
-  }
-});
-tsPack.register({
-  tags: {
-    functions: {
-      "minecraft:load": [load],
-    },
-  },
-});
 
 type McFile = {
   filename: string;

@@ -107,7 +107,7 @@ export function scoreboard(...args: ScoreboardParams): Command {
     return command(
       `scoreboard objectives add ${objective.name} ${objective.criteria} ${
         objective.displayName || ""
-      }}`
+      }`
     );
   }
 
