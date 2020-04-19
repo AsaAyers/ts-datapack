@@ -78,9 +78,3 @@ export type Objective = {
   name: string;
   displayName?: string;
 };
-export type ScoreboardInput = {
-  [variableName: string]: Criteria; // type
-};
-export type Scoreboard<T> = {
-  [variableName in keyof T]: Objective;
-};

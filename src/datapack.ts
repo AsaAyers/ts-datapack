@@ -2,8 +2,6 @@
 import * as path from "path";
 import { queue, objectives } from "./queue";
 import {
-  ScoreboardInput,
-  Scoreboard,
   CodeGenerator,
   McFunction,
   LootInput,
@@ -20,8 +18,6 @@ import { SelectorArgs, Selector, SelectorFunction } from "./game-types";
 import { command, scoreboard } from "./commands";
 
 const rootTags = new Map<string, Tag>();
-
-const id = Symbol("id");
 
 export default class DataPack {
   private initScoreboards: Command[];
@@ -62,21 +58,6 @@ export default class DataPack {
     rootTags.forEach((s) => {
       String(s);
     });
-  }
-
-  public makeScoreboard<T extends ScoreboardInput>(
-    namespace: string,
-    variables: T
-  ): Scoreboard<T> {
-    const scoreboard = {} as Scoreboard<T>;
-    for (const name in variables) {
-      if (variables.hasOwnProperty(name)) {
-        const criteria = variables[name];
-
-        scoreboard[name] = this.objective(name, criteria);
-      }
-    }
-    return scoreboard;
   }
 
   public objective(name: string, criteria: Objective["criteria"]): Objective {
