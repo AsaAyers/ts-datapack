@@ -34,14 +34,22 @@ export type McFunction = DataPackFile<FileType.McFunction> & CodeGenerator;
 
 export type LootTable = DataPackFile<FileType.LootTable>;
 
-type TagMap<T extends TagType> = T extends "functions"
+type TagToDataPackFile<T extends TagType> = T extends "functions"
   ? DataPackFile<FileType.McFunction>
   : never;
 
-export type Tag<T extends TagType> = DataPackFile<FileType.Tag> &
-  ((...values: Array<TagMap<T> | Tag<T> | string>) => void) & {
-    values: Array<TagMap<T> | Tag<T> | string>;
+export type Tag<T extends TagType = TagType> = DataPackFile<FileType.Tag> &
+  ((...values: Array<TagToDataPackFile<T> | Tag<T> | string>) => void) & {
+    values: Array<TagToDataPackFile<T> | Tag<T> | string>;
   };
+
+type TagMap<T extends TagType = TagType> = Partial<
+  Record<T, Record<string, Tag<T>["values"]>>
+>;
+
+export type DataPackExport = {
+  tags: TagMap;
+};
 
 export type LootInput = () => {
   type: string;

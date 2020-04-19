@@ -14,10 +14,14 @@ import {
   FileType,
   Objective,
   Command,
+  DataPackExport,
 } from "./types";
 import { SelectorArgs, Selector, SelectorFunction } from "./game-types";
 import { command, scoreboard } from "./commands";
-import { mcLoad } from ".";
+
+const rootTags = new Map<string, Tag>();
+
+const id = Symbol("id");
 
 export default class DataPack {
   private initScoreboards: Command[];
@@ -36,6 +40,28 @@ export default class DataPack {
     //   }
     // );
     // mcLoad(initialize_scoreboards);
+  }
+
+  public register(data: DataPackExport): void {
+    Object.entries(data.tags).forEach(([type, tagMap = {}]) => {
+      return Object.keys(tagMap)
+        .map(String)
+        .forEach((fullName) => {
+          if (!rootTags.has(fullName)) {
+            const [namespace, name] = fullName.split(":");
+            const tag = this.namespacedTag(namespace, type as TagType, name);
+            rootTags.set(fullName, tag);
+          }
+          const tag = rootTags.get(fullName)!;
+          tag(...tagMap[fullName]);
+          return tag;
+        });
+    });
+  }
+  public run(): void {
+    rootTags.forEach((s) => {
+      String(s);
+    });
   }
 
   public makeScoreboard<T extends ScoreboardInput>(
@@ -140,14 +166,12 @@ export default class DataPack {
     return lootTable;
   }
 
-  public makeTag<T extends TagType>(type: T, name: string): Tag<T> {
-    const filename = path.join(
-      "data",
-      this.namespace,
-      "tags",
-      type,
-      name + ".json"
-    );
+  private namespacedTag<T extends TagType>(
+    namespace: string,
+    type: T,
+    name: string
+  ): Tag<T> {
+    const filename = path.join("data", namespace, "tags", type, name + ".json");
 
     const values: Tag<T>["values"] = [];
     const tagFile: DataPackFile<FileType.Tag> = {
@@ -157,7 +181,7 @@ export default class DataPack {
         if (!queue.includes(tagFile)) {
           queue.push(tagFile);
         }
-        return `#${this.namespace}:${name}`;
+        return `#${namespace}:${name}`;
       },
       content(): string {
         if (values.length === 0) {
@@ -171,6 +195,8 @@ export default class DataPack {
         return JSON.stringify(data, null, 2);
       },
     };
+    // @ts-ignore
+    tagFile.id = Math.random();
 
     const tag: Tag<T> = Object.assign(
       (...newValues: typeof values): void => {
@@ -180,6 +206,10 @@ export default class DataPack {
       { values }
     );
     return tag;
+  }
+
+  public makeTag<T extends TagType>(type: T, name: string): Tag<T> {
+    return this.namespacedTag(this.namespace, type, name);
   }
 }
 

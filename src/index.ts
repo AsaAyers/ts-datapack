@@ -4,6 +4,7 @@ import { promisify } from "util";
 import { objectives, queue } from "./queue";
 import DataPack from "./datapack";
 import { command } from "./commands";
+import { DataPackFile, FileType } from "./types";
 export { McFunction } from "./types";
 export * from "./game-types";
 export * from "./commands";
@@ -14,35 +15,31 @@ export default DataPack;
 const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
 
-const minecraft = new DataPack("minecraft", "minecraft");
-
-export const mcTick = minecraft.makeTag("functions", "tick");
-export const mcLoad = minecraft.makeTag("functions", "load");
-
 const tsPack = new DataPack("ts_pack", "tsp");
-mcLoad(
-  tsPack.mcFunction(function* load() {
-    yield command(`# ts-datapack`);
-    if (objectives.length > 0) {
-      yield command(objectives.join("\n"));
-    }
-  })
-);
+
+const load = tsPack.mcFunction(function* load() {
+  yield command(`# ts-datapack`);
+  if (objectives.length > 0) {
+    yield command(objectives.join("\n"));
+  }
+});
+tsPack.register({
+  tags: {
+    functions: {
+      "minecraft:load": [load],
+    },
+  },
+});
 
 type McFile = {
   filename: string;
   content: string;
 };
 type Files = Record<McFile["filename"], McFile>;
-export function buildPlan(): Files {
-  if (objectives.length > 0) {
-  }
-  String(mcTick);
-  String(mcLoad);
-
+export function processQueue(q: DataPackFile<FileType>[] = queue): Files {
   const files: Files = {};
-  for (let i = 0; i < queue.length; i++) {
-    const file = queue[i];
+  for (let i = 0; i < q.length; i++) {
+    const file = q[i];
 
     const { filename } = file;
     if (files[filename]) {
@@ -58,12 +55,19 @@ export function buildPlan(): Files {
   return files;
 }
 
-export async function build(_targetDirectory: string): Promise<void> {
-  const plan = buildPlan();
+export async function build(
+  datapack: DataPack,
+  targetDirectory: string
+): Promise<void> {
+  // String(mcTick);
+  // String(mcLoad);
+
+  datapack.run();
+  const plan = processQueue(queue);
 
   await Promise.all(
     Object.values(plan).map(async (file) => {
-      const fullPath = path.join(_targetDirectory, file.filename);
+      const fullPath = path.join(targetDirectory, file.filename);
       const dir = path.dirname(fullPath);
       await mkdir(dir, { recursive: true });
       // console.log("writing", file.filename);
