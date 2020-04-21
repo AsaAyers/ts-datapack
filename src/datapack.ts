@@ -76,16 +76,18 @@ export default class DataPack {
   }
 
   public objective(name: string, criteria: Objective["criteria"]): Objective {
-    let fullName: string;
+    const fullName = `${this.scoreboardNamespace}.${name}`;
+
+    if (fullName.length > 16) {
+      throw new Error(
+        `Objective names cannot be longer than 16 characters: ${fullName} (${fullName.length} characters)`
+      );
+    }
+
     const myObjective = {
       criteria,
       name,
-      toString: (): string => {
-        if (!fullName) {
-          fullName = `${this.scoreboardNamespace}.${name}`;
-        }
-        return fullName;
-      },
+      toString: (): string => fullName,
     };
     this.initScoreboards.push(scoreboard("objectives", "add", myObjective));
     return myObjective;

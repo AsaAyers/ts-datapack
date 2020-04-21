@@ -105,7 +105,7 @@ export function scoreboard(...args: ScoreboardParams): Command {
   if (args[0] === "objectives" && args[1] == "add") {
     const objective = args[2];
     return command(
-      `scoreboard objectives add ${objective.name} ${objective.criteria} ${
+      `scoreboard objectives add ${objective} ${objective.criteria} ${
         objective.displayName || ""
       }`
     );
